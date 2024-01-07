@@ -4,10 +4,12 @@ import java.io.*;
 import java.lang.reflect.Array;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.awt.*;
 import java.awt.image.*;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -15,8 +17,13 @@ import javax.swing.*;
 public class Main extends JPanel implements Runnable {
 	
 	public int tiles = 0;
+	public long vsyncRate = (long)((1/(double)(GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[0].getDisplayMode().getRefreshRate()))*1000000000);
+	public boolean vsync = true;
 	public BufferedImage[] textures;
 	public ArrayList<Object[]> tileData = new ArrayList<Object[]>();
+	public long prevRenderTime = 0;
+	public long ct = 0;
+	public String detectedOS = "";
 	
 	public void nothing() {
 		
@@ -224,8 +231,20 @@ public class Main extends JPanel implements Runnable {
 		this.setBackground(new Color(190, 237, 247));
 		
 		log("Max Memory: "+runtime.maxMemory() / 1048576+"MB");
+		log("Refresh Rate: "+GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[0].getDisplayMode().getRefreshRate()+"Hz");
 		//log("Allocated Memory: "+runtime.totalMemory() / 1048576+"MB");
 		log("Running "+System.getProperty("os.name")+System.getProperty("os.arch"));
+		
+		String OS = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
+	    if ((OS.indexOf("mac") >= 0) || (OS.indexOf("darwin") >= 0)) {
+	        detectedOS = "MaxOS";
+	    } else if (OS.indexOf("win") >= 0) {
+	        detectedOS = "Windows";
+	    } else if (OS.indexOf("nux") >= 0 || OS.indexOf("nix") >= 0 || OS.indexOf("aix") >= 0) {
+	        detectedOS = "Unix";
+	    } else {
+	        detectedOS = "Unknown";
+	    }
 		
 		jFrame = new JFrame();
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -271,18 +290,33 @@ public class Main extends JPanel implements Runnable {
     }
 	
 	public void run() {
+		System.getProperties().list(System.out);
         addMouseListener(m);
         addMouseMotionListener(m);
         while (!Thread.currentThread().isInterrupted()) {
-            Update();
-            long millis = System.currentTimeMillis();
-            if (lastSecTime+1000 > millis) {
-            	frames++;
-            } else {
-            	fps = frames;
-            	frames = 0;
-            	lastSecTime = millis;
-            }
+        	Instant inst = Instant.now().plusNanos(1);
+        	ct = TimeUnit.SECONDS.toNanos(inst.getEpochSecond()) + inst.getNano();
+        	if (vsync == true) {
+	        	if (ct > (prevRenderTime + vsyncRate)) {
+	        		prevRenderTime = prevRenderTime + vsyncRate;
+	        		if (ct > (prevRenderTime + vsyncRate)) {
+	        			prevRenderTime = ct;
+	        		}
+
+	            	Update();
+	        		
+		            long millis = System.currentTimeMillis();
+		            if (lastSecTime+1000 > millis) {
+		            	frames++;
+		            } else {
+		            	fps = frames;
+		            	frames = 0;
+		            	lastSecTime = millis;
+		            }
+	        	}
+        	} else {
+        		
+        	}
             try {
                 Thread.sleep(0);
             } catch (InterruptedException e) {}
