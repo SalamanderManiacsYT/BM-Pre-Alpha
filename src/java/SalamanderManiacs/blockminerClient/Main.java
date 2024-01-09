@@ -21,7 +21,7 @@ public class Main implements Runnable {
 	public int tiles = 0;
 	public long vsyncRate = (long)((1/(double)(GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[0].getDisplayMode().getRefreshRate()))*1000000000);
 	public boolean vsync = true;
-	public BufferedImage[] textures;
+	public BufferedImage atlas;
 	public ArrayList<Object[]> tileData = new ArrayList<Object[]>();
 	public long prevRenderTime = 0;
 	public long ct = 0;
@@ -41,15 +41,36 @@ public class Main implements Runnable {
 	}
 
 	public void registerTextures() {
-		textures = new BufferedImage[tiles];
+		URL mURL = getClass().getResource("/defaultAssets/mask.png");
+		BufferedImage mask = null;
+		atlas = new BufferedImage(256,tiles*16,BufferedImage.TYPE_INT_ARGB);
+		try {
+			mask = ImageIO.read(new File(mURL.toURI()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		log(getClass().getResource("/")+"");
 		for (int i = 0; i < tiles; i++) {
-			URL tURL = getClass().getResource("/tile_"+(i+1)+".png");
+			URL tURL = getClass().getResource("/defaultAssets/tile_"+(i+1)+".png");
+			BufferedImage texture = null;
 			try {
-				textures[i] = ImageIO.read(new File(tURL.toURI()));
+				texture = ImageIO.read(new File(tURL.toURI()));
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (URISyntaxException e) {
 				e.printStackTrace();
+			}
+			for (int n = 0; n < 16; n++) {
+				for (int y = 0; y < 15; y++) {
+					for (int x = 0; x < 15; x++) {
+						atlas.setRGB(n*16+x, i*16+y, (mask.getRGB(n*16+x, 0+y) & texture.getRGB(0+x, 0+y)));
+					}
+				}
+				if (((boolean) tileData.get(i)[1]) == false) {
+					n = 16;
+				}
 			}
 		}
 	}
@@ -84,8 +105,8 @@ public class Main implements Runnable {
 	public int mapheight = 20;
 
 	public int tileSize = 30;
-	public Renderer renderer= new Renderer(this);
-	public GameWindow gameWindow=new GameWindow(this);
+	public Renderer renderer = new Renderer(this);
+	public GameWindow gameWindow = new GameWindow(this);
 	public int[] map = new int[]{
 
 		1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
@@ -123,7 +144,7 @@ public class Main implements Runnable {
 		if (block == -1 || block == 0) {
 			return false;
 		} else {
-			return true;
+			return ((boolean) tileData.get(block-1)[1]);
 		}
 	}
 
@@ -158,7 +179,7 @@ public class Main implements Runnable {
 			detectedOS = "Unknown";
 		}
 
-        URL iconURL = getClass().getResource("/bmuicon.png");
+        URL iconURL = getClass().getResource("/defaultAssets/bm-icon.png");
         ImageIcon icon = new ImageIcon(iconURL);
 		gameWindow.setIcon(icon);
 		gameWindow.setVisible(true);
@@ -173,7 +194,6 @@ public class Main implements Runnable {
 
 
 	public void run() {
-		System.getProperties().list(System.out);
 		gameWindow.addMouseListener(gameWindow.m);
 		gameWindow.addMouseMotionListener(gameWindow.m);
         while (!Thread.currentThread().isInterrupted()) {

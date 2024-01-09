@@ -7,7 +7,9 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GameWindow extends JPanel {
-    private final Main game;
+	
+	private static final long serialVersionUID = 8599544972938038452L;
+	private final Main game;
     public Mouse m = new Mouse();
     public int fps = 0;
 
