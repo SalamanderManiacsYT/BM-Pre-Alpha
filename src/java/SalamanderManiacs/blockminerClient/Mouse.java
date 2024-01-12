@@ -1,11 +1,11 @@
-package BlockMiner;
+package SalamanderManiacs.blockminerClient;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 
 public class Mouse extends MouseAdapter implements MouseMotionListener {
-	
+
 	public boolean down = false;
 
     public int x = 0;
