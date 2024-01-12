@@ -5,8 +5,8 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src-server/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/Block Miner" isTestSource="false" packagePrefix="BlockMiner" />
-      <sourceFolder url="file://$MODULE_DIR$/src/defaultAssets" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/assets" type="java-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

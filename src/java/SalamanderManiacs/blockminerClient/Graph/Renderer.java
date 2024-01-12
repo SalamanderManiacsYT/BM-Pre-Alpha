@@ -1,6 +1,7 @@
 package SalamanderManiacs.blockminerClient.Graph;
 
 import SalamanderManiacs.blockminerClient.Main;
+import SalamanderManiacs.blockminerServer.entities.Entity;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -8,6 +9,7 @@ import java.util.function.BinaryOperator;
 
 public class Renderer {
     private final Main game;
+    public float offset=0.f;
 
     public Renderer(Main game) {
         this.game = game;
@@ -26,10 +28,9 @@ public class Renderer {
 //            g.fillRect(x,y,15,15);
 //        }
     }
-
     public void renderID(Graphics g, int mx, int my) {
         int id = game.getBlockAt(mx,my);
-        int x = mx*game.tileSize;
+        int x = (int)offset+(mx*game.tileSize);
         int y = my*game.tileSize;
         if (id == -1) {
             g.setColor(Color.black);
@@ -51,57 +52,5 @@ public class Renderer {
 	            if (!game.blockTest(mx,my-1)){amount+=8;} //above weight=8
 			}
             return game.atlas.getSubimage(amount*16, (id-1)*16, 15, 15);
-/*
-            if (above == true) {
-                if (below == true) {
-                    if (left == true) {
-                        if (right == true) {
-                            return game.textures[0].getSubimage(64, 0, 15, 15);
-                        } else {
-                            return game.textures[0].getSubimage(0, 0, 15, 15);
-                        }
-                    } else if (right == true) {
-                        return game.textures[0].getSubimage(16, 0, 15, 15);
-                    } else {
-                        return game.textures[0].getSubimage(64, 32, 15, 15);
-                    }
-                } else if (left == true) {
-                    if (right == true) {
-                        return textures[0].getSubimage(32, 0, 15, 15);
-                    } else {
-                        return textures[0].getSubimage(0, 16, 15, 15);
-                    }
-                } else if (right == true) {
-                    return textures[0].getSubimage(16, 16, 15, 15);
-                } else {
-                    return textures[0].getSubimage(16, 32, 15, 15);
-                }
-            }
-            else if (below == true) {
-                if (left == true) {
-                    if (right == true) {
-                        return textures[0].getSubimage(48, 0, 15, 15);
-                    } else {
-                        return textures[0].getSubimage(32, 16, 15, 15);
-                    }
-                } else if (right == true) {
-                    return textures[0].getSubimage(48, 16, 15, 15);
-                } else {
-                    return textures[0].getSubimage(0, 32, 15, 15);
-                }
-            } else if (left == true) {
-                if (right == true) {
-                    return textures[0].getSubimage(64, 16, 15, 15);
-                } else {
-                    return textures[0].getSubimage(32, 32, 15, 15);
-                }
-            } else if (right == true) {
-                return textures[0].getSubimage(48, 32, 15, 15);
-            } else {
-                return textures[0].getSubimage(64, 64, 15, 15);
-            }
-        } else {
-            return textures[0];
-        }*/
     }
 }
